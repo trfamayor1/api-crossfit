@@ -4,7 +4,7 @@ import pandas as pd
 app = Flask(__name__)
 
 # URL CSV público de Google Sheets
-URL_SHEET = "AQUI_PONDREMOS_TU_LINK_LUEGO"
+URL_SHEET = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3dBwwqLAfI8o9BQ5fVa6ZuFA_HTAKh0dcnO5BZNfkjZpi42saRd8lMj-Rfl2TwHx1eh6nJKw6nxhm/pub?output=csv"
 
 @app.route("/")
 def home():
