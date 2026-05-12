@@ -3,7 +3,11 @@ import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
+from flask_cors import CORS
+
+
 app = Flask(__name__)
+CORS(app)  # 👈 Esto permite peticiones desde cualquier origen
 
 # ---------------- GOOGLE SHEETS LOGIN ----------------
 scope = [
