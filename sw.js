@@ -1,36 +1,39 @@
-// Service Worker - Versión sin caché problemático
-const CACHE_NAME = 'crossfit-box-v3';
+// Service Worker - Versión definitiva sin caché problemático
+// Los usuarios nunca tendrán que borrar datos manualmente
 
-// No pre-cacheamos nada para evitar problemas
-const urlsToCache = [];
+const CACHE_NAME = 'crossfit-box-v6';
 
+// Instalación - sin cachear nada
 self.addEventListener('install', event => {
-  // Forzar activación inmediata
-  self.skipWaiting();
-  console.log('Service Worker instalado v3');
+  console.log('SW instalado');
+  self.skipWaiting(); // Activar inmediatamente
 });
 
+// Activación - limpiar cualquier caché viejo
 self.addEventListener('activate', event => {
-  // Limpiar todo el caché viejo
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cache => {
-          console.log('Eliminando caché:', cache);
-          return caches.delete(cache);
-        })
-      );
+    caches.keys().then(keys => {
+      return Promise.all(keys.map(key => {
+        console.log('Eliminando caché viejo:', key);
+        return caches.delete(key);
+      }));
     })
   );
-  self.clients.claim();
-  console.log('Service Worker activado v3 - Caché limpiado');
+  self.clients.claim(); // Tomar control de todas las pestañas
+  console.log('SW activado - caché limpio');
 });
 
-// No interceptar fetch - ir directamente a la red
+// Fetch - Siempre ir a la red, nunca usar caché
 self.addEventListener('fetch', event => {
-  // Simplemente ir a la red sin caché
-  event.respondWith(fetch(event.request).catch(error => {
-    console.error('Fetch falló:', error);
-    return new Response('Error de conexión', { status: 500 });
-  }));
+  event.respondWith(
+    fetch(event.request)
+      .catch(error => {
+        console.error('Error de red:', error);
+        // Si no hay internet, mostrar mensaje básico
+        return new Response('Sin conexión a internet', {
+          status: 503,
+          statusText: 'Service Unavailable'
+        });
+      })
+  );
 });
