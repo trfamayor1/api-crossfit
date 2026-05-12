@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CrossFit Box - Registro</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MiBox">
+    <meta name="theme-color" content="#ff4d00">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #111;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .card {
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 25px;
+            width: 100%;
+            max-width: 350px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 28px;
+        }
+        
+        input, select, button {
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        input, select {
+            background: #2a2a2a;
+            color: white;
+        }
+        
+        input::placeholder {
+            color: #888;
+        }
+        
+        button {
+            background: #ff4d00;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+        
+        button:hover {
+            background: #cc3e00;
+            transform: scale(1.02);
+        }
+        
+        #msg {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .success {
+            background: rgba(102, 255, 102, 0.2);
+            color: #66ff66;
+        }
+        
+        .error {
+            background: rgba(255, 102, 102, 0.2);
+            color: #ff6666;
+        }
+        
+        .logo {
+            text-align: center;
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="card">
+    <div class="logo">🏋️‍♂️</div>
+    <h2>Registro Atleta</h2>
+
+    <input id="nombre" placeholder="Nombre completo" autocomplete="name">
+    <input id="email" placeholder="Email" type="email" autocomplete="email">
+
+    <select id="plan">
+        <option value="Ilimitado">📅 Ilimitado</option>
+        <option value="3xSemana">📆 3xSemana</option>
+        <option value="DropIn">🎯 DropIn</option>
+    </select>
+
+    <input id="vencimiento" type="date" placeholder="Vencimiento">
+
+    <button onclick="registrar()">Registrar</button>
+
+    <p id="msg"></p>
+</div>
+
+<script>
+// Registrar Service Worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+        .then(() => console.log('✅ Service Worker registrado'))
+        .catch(err => console.log('❌ Error SW:', err));
+}
+
+async function registrar() {
+    const nombre = document.getElementById("nombre").value;
+    const email = document.getElementById("email").value;
+    const plan = document.getElementById("plan").value;
+    const vencimiento = document.getElementById("vencimiento").value;
+    const msgElement = document.getElementById("msg");
+    
+    if (!nombre || !email) {
+        msgElement.innerHTML = "❌ Nombre y email son obligatorios";
+        msgElement.className = "error";
+        return;
+    }
+    
+    msgElement.innerHTML = "⏳ Enviando...";
+    msgElement.className = "";
+    
+    try {
+        const response = await fetch("https://api-crossfit.onrender.com/registro", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                nombre: nombre,
+                email: email,
+                plan: plan,
+                vencimiento: vencimiento
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            msgElement.innerHTML = "✅ " + data.mensaje;
+            msgElement.className = "success";
+            document.getElementById("nombre").value = "";
+            document.getElementById("email").value = "";
+            document.getElementById("vencimiento").value = "";
+        } else {
+            msgElement.innerHTML = "❌ " + (data.error || "Error desconocido");
+            msgElement.className = "error";
+        }
+    } catch (error) {
+        msgElement.innerHTML = "❌ Error de conexión";
+        msgElement.className = "error";
+        console.error("Error:", error);
+    }
+}
+</script>
+
+</body>
+</html>
