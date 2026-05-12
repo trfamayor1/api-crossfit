@@ -3,3 +3,6 @@ pandas
 gunicorn
 gspread
 oauth2client
+flask-cors
+google-auth
+
