@@ -1,44 +1,36 @@
-const CACHE_NAME = 'crossfit-box-v2'; // CAMBIÉ LA VERSIÓN
+// Service Worker - Versión sin caché problemático
+const CACHE_NAME = 'crossfit-box-v3';
 
-const urlsToCache = [
-  '/registro.html',
-  '/manifest.json',
-  '/static/icon-72.png',
-  '/static/icon-96.png',
-  '/static/icon-144.png',
-  '/static/icon-192.png',
-  '/static/icon-512.png'
-];
+// No pre-cacheamos nada para evitar problemas
+const urlsToCache = [];
 
-// Instalar
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
-  );
-  self.skipWaiting(); // Fuerza la activación inmediata
+  // Forzar activación inmediata
+  self.skipWaiting();
+  console.log('Service Worker instalado v3');
 });
 
-// Activar - limpiar caché vieja
 self.addEventListener('activate', event => {
+  // Limpiar todo el caché viejo
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cache => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache);
-          }
+          console.log('Eliminando caché:', cache);
+          return caches.delete(cache);
         })
       );
     })
   );
-  return self.clients.claim(); // Toma control inmediato
+  self.clients.claim();
+  console.log('Service Worker activado v3 - Caché limpiado');
 });
 
-// Fetch
+// No interceptar fetch - ir directamente a la red
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
-  );
+  // Simplemente ir a la red sin caché
+  event.respondWith(fetch(event.request).catch(error => {
+    console.error('Fetch falló:', error);
+    return new Response('Error de conexión', { status: 500 });
+  }));
 });
