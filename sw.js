@@ -1,4 +1,5 @@
-const CACHE_NAME = 'crossfit-box-v1';
+const CACHE_NAME = 'crossfit-box-v2'; // CAMBIÉ LA VERSIÓN
+
 const urlsToCache = [
   '/registro.html',
   '/manifest.json',
@@ -9,15 +10,16 @@ const urlsToCache = [
   '/static/icon-512.png'
 ];
 
-// Instalar Service Worker
+// Instalar
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
   );
+  self.skipWaiting(); // Fuerza la activación inmediata
 });
 
-// Activar y limpiar caché vieja
+// Activar - limpiar caché vieja
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -30,9 +32,10 @@ self.addEventListener('activate', event => {
       );
     })
   );
+  return self.clients.claim(); // Toma control inmediato
 });
 
-// Interceptar peticiones y responder desde caché si es posible
+// Fetch
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
