@@ -2,7 +2,7 @@
   "name": "CrossFit Box App",
   "short_name": "MiBox",
   "description": "Gestiona tus entrenamientos, reservas y RM",
-  "start_url": "/",
+  "start_url": "/registro.html",
   "display": "standalone",
   "theme_color": "#ff4d00",
   "background_color": "#111111",
